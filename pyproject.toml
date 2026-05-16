@@ -1,0 +1,19 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.backends.legacy:build"
+
+[project]
+name = "rubik-cipher"
+version = "2.0.0"
+description = "RUBIK Cipher v2 — custom symmetric block cipher (128-bit, 8-round SPN)"
+requires-python = ">=3.10"
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=7.0"]
+
+[project.scripts]
+rubik-cipher = "main:main"
+
+[tool.pytest.ini_options]
+testpaths = ["rubik_cipher_v2/tests"]

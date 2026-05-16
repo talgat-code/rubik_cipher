@@ -5,6 +5,9 @@ import os
 import random
 import time
 
+_COL_W: int = 22
+_KEY_LENGTHS: list[int] = [8, 12, 16, 20, 24]
+
 
 class SecurityAnalyzer:
     """Runs statistical and comparative security tests on a RubikCipher instance."""
@@ -60,7 +63,7 @@ class SecurityAnalyzer:
             Each value is a dict with 'combinations' and 'bit_security'.
         """
         result: dict[int, dict] = {}
-        for n in [8, 12, 16, 20, 24]:
+        for n in _KEY_LENGTHS:
             combos = 95 ** n
             result[n] = {
                 "combinations": combos,
@@ -102,18 +105,21 @@ class SecurityAnalyzer:
         Columns: Caesar, Vigenère, RUBIK v1, RUBIK v2.
         Data sourced from the RUBIK Cipher v2 specification.
         """
-        W = 22  # column width
+        W = _COL_W
         sep = "=" * (20 + W * 4)
-        hdr = f"{'Property':<20}{'Caesar':>{W}}{'Vigenère':>{W}}{'RUBIK v1':>{W}}{'RUBIK v2':>{W}}"
+        hdr = (
+            f"{'Property':<20}"
+            f"{'Caesar':>{W}}{'Vigenere':>{W}}{'RUBIK v1':>{W}}{'RUBIK v2':>{W}}"
+        )
         rows = [
-            ("Key space (16-char)",  "25",           "6.6 × 10¹⁵",  "4.4 × 10³¹",  "4.4 × 10³¹"),
-            ("Key derivation",       "none",          "none",         "LCG (weak)",   "PBKDF2-SHA256"),
-            ("Freq. resistance",     "none",          "partial",      "good",         "excellent"),
-            ("Avalanche effect",     "~0%",           "~0%",          "3.9% (bad)",   "~50% (ideal)"),
-            ("Rounds",               "1",             "1",            "4",            "8"),
-            ("MixColumns",           "no",            "no",           "no",           "yes (GF 2⁸)"),
-            ("CBC mode",             "no",            "no",           "yes",          "yes"),
-            ("Brute-force viable?",  "Yes (<1 ms)",   "No (IC)",      "Unlikely",     "No"),
+            ("Key space (16-char)", "25",         "6.6e15",      "4.4e31",      "4.4e31"),
+            ("Key derivation",      "none",        "none",        "LCG (weak)",  "PBKDF2-SHA256"),
+            ("Freq. resistance",    "none",        "partial",     "good",        "excellent"),
+            ("Avalanche effect",    "~0%",         "~0%",         "3.9% (bad)",  "~50% (ideal)"),
+            ("Rounds",              "1",           "1",           "4",           "8"),
+            ("MixColumns",          "no",          "no",          "no",          "yes (GF 2^8)"),
+            ("CBC mode",            "no",          "no",          "yes",         "yes"),
+            ("Brute-force viable?", "Yes (<1 ms)", "No (IC)",     "Unlikely",    "No"),
         ]
         lines = [hdr, sep]
         for label, *vals in rows:

@@ -3,7 +3,6 @@ Pytest tests for RUBIK Cipher v2.
 Run:  python -m pytest rubik_cipher_v2/tests/test_cipher.py -v
       python -m pytest rubik_cipher_v2/tests/test_cipher.py -v -x
 """
-import os
 import pytest
 
 from rubik_cipher_v2.core.cipher import RubikCipher

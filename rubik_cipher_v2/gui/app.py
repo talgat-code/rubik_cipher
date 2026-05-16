@@ -2,7 +2,7 @@
 import os
 import threading
 import tkinter as tk
-from tkinter import filedialog, messagebox, scrolledtext, ttk
+from tkinter import filedialog, scrolledtext, ttk
 
 from ..core.cipher import RubikCipher
 from ..analysis.security_analysis import SecurityAnalyzer
@@ -22,9 +22,10 @@ C: dict[str, str] = {
     "yellow":  "#f9e2af",
 }
 
-_TITLE = "RUBIK Cipher v2 — Cryptography Project"
-_GEOMETRY = "740x620"
-_MIN_SIZE = (600, 500)
+_TITLE      = "RUBIK Cipher v2 — Cryptography Project"
+_GEOMETRY   = "740x620"
+_MIN_SIZE   = (600, 500)
+_RUBIK_EXT  = ".rubik"
 
 
 class RubikCipherApp(tk.Frame):
@@ -269,6 +270,10 @@ class RubikCipherApp(tk.Frame):
 
     # ── encrypt / decrypt ─────────────────────────────────────────────────────
 
+    def _get_input_text(self) -> str:
+        """Return the current text-area content with trailing newline stripped."""
+        return self._input_text.get("1.0", tk.END).rstrip("\n")
+
     def _do_encrypt(self) -> None:
         """Encrypt the input area contents (or loaded binary file) in a thread."""
         key = self._get_key()
@@ -281,20 +286,19 @@ class RubikCipherApp(tk.Frame):
             try:
                 cipher = RubikCipher(key)
                 loaded = self._loaded_file
-                if loaded and not loaded.endswith(".rubik"):
+                is_binary_file = False
+                if loaded and not loaded.endswith(_RUBIK_EXT):
                     try:
                         with open(loaded, "rb") as fh:
-                            binary = b"\x00" in fh.read(512)
+                            is_binary_file = b"\x00" in fh.read(512)
                     except Exception:
-                        binary = False
-                    if binary:
-                        out = loaded + ".rubik"
-                        cipher.encrypt_file(loaded, out)
-                        result = f"[Encrypted → {out}]"
-                    else:
-                        result = cipher.encrypt(self._input_text.get("1.0", tk.END).rstrip("\n"))
+                        pass
+                if is_binary_file and loaded:
+                    out = loaded + _RUBIK_EXT
+                    cipher.encrypt_file(loaded, out)
+                    result = f"[Encrypted → {out}]"
                 else:
-                    result = cipher.encrypt(self._input_text.get("1.0", tk.END).rstrip("\n"))
+                    result = cipher.encrypt(self._get_input_text())
                 self.after(0, self._set_text, self._output_text, result)
                 self.after(0, self._set_status, "Encryption complete.")
             except Exception as exc:
@@ -314,13 +318,12 @@ class RubikCipherApp(tk.Frame):
             try:
                 cipher = RubikCipher(key)
                 loaded = self._loaded_file
-                if loaded and loaded.endswith(".rubik"):
-                    out = loaded[:-6]
+                if loaded and loaded.endswith(_RUBIK_EXT):
+                    out = loaded[: -len(_RUBIK_EXT)]
                     cipher.decrypt_file(loaded, out)
                     result = f"[Decrypted → {out}]"
                 else:
-                    ct = self._input_text.get("1.0", tk.END).strip()
-                    result = cipher.decrypt(ct)
+                    result = cipher.decrypt(self._get_input_text().strip())
                 self.after(0, self._set_text, self._output_text, result)
                 self.after(0, self._set_status, "Decryption complete.")
             except Exception as exc:
